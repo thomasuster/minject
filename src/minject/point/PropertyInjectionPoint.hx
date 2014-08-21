@@ -22,6 +22,7 @@ SOFTWARE.
 
 package minject.point;
 
+import minject.RequestHasher;
 import minject.Injector;
 
 class PropertyInjectionPoint implements InjectionPoint
@@ -29,18 +30,22 @@ class PropertyInjectionPoint implements InjectionPoint
 	var name:String;
 	var type:Class<Dynamic>;
 	var injectionName:String;
+	var requestName:String;
 
-	public function new(name:String, type:String, ?injectionName:String=null)
+	public function new(name:String, type:String, ?injectionName:String)
 	{
 		this.name = name;
 		this.type = Type.resolveClass(type);
 		this.injectionName = injectionName;
+		this.requestName = RequestHasher.resolveRequest(this.type, injectionName);
 	}
 
 	public function applyInjection(target:Dynamic, injector:Injector):Dynamic
 	{
-		var injectionConfig = injector.getMapping(type, injectionName);
-		var injection = injectionConfig.getResponse(injector);
+		var config = injector.getMapping(requestName);
+		if(config == null)
+			config = injector.makeMapping(type, injectionName);
+		var injection = config.getResponse(injector);
 		#if debug
 		if (injection == null)
 		{

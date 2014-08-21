@@ -22,6 +22,7 @@ SOFTWARE.
 
 package minject;
 
+import minject.RequestHasher;
 import haxe.rtti.Meta;
 import haxe.ds.WeakMap;
 import haxe.ds.ObjectMap;
@@ -75,7 +76,7 @@ import minject.result.InjectValueResult;
 	**/
 	public function mapValue(whenAskedFor:Class<Dynamic>, useValue:Dynamic, ?named:String = ""):Dynamic
 	{
-		var config = getMapping(whenAskedFor, named);
+		var config = makeMapping(whenAskedFor, named);
 		config.setResult(new InjectValueResult(useValue));
 		return config;
 	}
@@ -94,7 +95,7 @@ import minject.result.InjectValueResult;
 	**/
 	public function mapClass(whenAskedFor:Class<Dynamic>, instantiateClass:Class<Dynamic>, ?named:String=""):Dynamic
 	{
-		var config = getMapping(whenAskedFor, named);
+		var config = makeMapping(whenAskedFor, named);
 		config.setResult(new InjectClassResult(instantiateClass));
 		return config;
 	}
@@ -130,7 +131,7 @@ import minject.result.InjectValueResult;
 	**/
 	public function mapSingletonOf(whenAskedFor:Class<Dynamic>, useSingletonOf:Class<Dynamic>, ?named:String=""):Dynamic
 	{
-		var config = getMapping(whenAskedFor, named);
+		var config = makeMapping(whenAskedFor, named);
 		config.setResult(new InjectSingletonResult(useSingletonOf));
 		return config;
 	}
@@ -150,25 +151,24 @@ import minject.result.InjectValueResult;
 	**/
 	public function mapRule(whenAskedFor:Class<Dynamic>, useRule:Dynamic, ?named:String = ""):Dynamic
 	{
-		var config = getMapping(whenAskedFor, named);
+		var config = makeMapping(whenAskedFor, named);
 		config.setResult(new InjectOtherRuleResult(useRule));
 		return useRule;
 	}
 	
-	public function getMapping(forClass:Class<Dynamic>, ?named:String=""):InjectionConfig
+	public function getMapping(requestName):InjectionConfig
 	{
-		var requestName = getClassName(forClass) + "#" + named;
-		
-		if (injectionConfigs.exists(requestName))
-		{
-			return injectionConfigs.get(requestName);
-		}
-		
+		return injectionConfigs.get(requestName);
+	}
+
+	public function makeMapping(forClass:Class<Dynamic>, ?named:String=""):InjectionConfig
+	{
+		var requestName:String = RequestHasher.resolveRequest(forClass, named);
 		var config = new InjectionConfig(forClass, named);
 		injectionConfigs.set(requestName, config);
 		return config;
 	}
-	
+
 	/**
 		Perform an injection into an object, satisfying all it's dependencies
 		
@@ -265,7 +265,7 @@ import minject.result.InjectValueResult;
 		
 		if (mapping == null)
 		{
-			throw 'Error while removing an injector mapping: No mapping defined for class ' + getClassName(theClass) + ', named "' + named + '"';
+			throw 'Error while removing an injector mapping: No mapping defined for class ' + RequestHasher.getClassName(theClass) + ', named "' + named + '"';
 		}
 
 		mapping.setResult(null);
@@ -303,7 +303,7 @@ import minject.result.InjectValueResult;
 		
 		if (mapping == null || !mapping.hasResponse(this))
 		{
-			throw 'Error while getting mapping response: No mapping defined for class ' + getClassName(ofClass) + ', named "' + named + '"';
+			throw 'Error while getting mapping response: No mapping defined for class ' + RequestHasher.getClassName(ofClass) + ', named "' + named + '"';
 		}
 
 		return mapping.getResponse(this);
@@ -331,7 +331,7 @@ import minject.result.InjectValueResult;
 
 		while (parent != null)
 		{
-			var parentConfig = parent.getConfigurationForRequest(forClass, named, false);
+			var parentConfig = parent.getConfigurationNoAncestors(forClass, named);
 
 			if (parentConfig != null && parentConfig.hasOwnResponse())
 			{
@@ -412,18 +412,23 @@ import minject.result.InjectValueResult;
 		return injecteeDescription;
 	}
 
-	function getConfigurationForRequest(forClass:Class<Dynamic>, named:String, ?traverseAncestors:Bool=true):InjectionConfig
+	function getConfigurationForRequest(forClass:Class<Dynamic>, named:String):InjectionConfig
 	{
-		var requestName = getClassName(forClass) + '#' + named;
+		var requestName:String = RequestHasher.resolveRequest(forClass, named);
 		
 		if (!injectionConfigs.exists(requestName))
 		{
-			if (traverseAncestors && parentInjector != null 
-				&& parentInjector.hasMapping(forClass, named))
-					return getAncestorMapping(forClass, named);
+			if (parentInjector != null && parentInjector.hasMapping(forClass, named))
+				return getAncestorMapping(forClass, named);
 			return null;
 		}
 
+		return injectionConfigs.get(requestName);
+	}
+
+	function getConfigurationNoAncestors(forClass:Class<Dynamic>, named:String):InjectionConfig
+	{
+		var requestName:String = RequestHasher.resolveRequest(forClass, named);
 		return injectionConfigs.get(requestName);
 	}
 
@@ -438,12 +443,6 @@ import minject.result.InjectValueResult;
 		if (parentInjector != null) attendedToInjectees = parentInjector.attendedToInjectees;
 
 		return parentInjector;
-	}
-
-	function getClassName(forClass:Class<Dynamic>):String
-	{
-		if (forClass == null) return "Dynamic";
-		else return Type.getClassName(forClass);
 	}
 
 	function getFields(type:Class<Dynamic>)
