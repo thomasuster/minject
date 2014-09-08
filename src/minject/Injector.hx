@@ -469,46 +469,21 @@ import minject.result.InjectValueResult;
 **/
 class InjecteeSet
 {
-	#if (flash9 || java || php)
-	var map:WeakMap<{}, Bool>;
-	#elseif cpp
-	var map:ObjectMap<{}, Bool>;
-	#end
-
 	public function new()
 	{
-		#if (flash9 || java || php)
-		map = new WeakMap<{}, Bool>();
-		#elseif cpp
-		map = new ObjectMap<{}, Bool>();
-		#end
 	}
 
 	public function add(value:Dynamic)
 	{
-		#if (flash9 || cpp || java || php)
-		map.set(value, true);
-		#else
-		value.__injected__ = true;
-		#end
 	}
 
 	public function contains(value:Dynamic)
 	{
-		#if (flash9 || cpp || java || php)
-		return map.exists(value);
-		#else
-		return value.__injected__ == true;
-		#end
+		return false;
 	}
 
 	public function remove(value:Dynamic)
 	{
-		#if (flash9 || cpp || java || php)
-		map.remove(value);
-		#else
-		Reflect.deleteField(value, "__injected__");
-		#end
 	}
 
 	// deprecated
@@ -521,11 +496,7 @@ class InjecteeSet
 	**/
 	public function iterator()
 	{
-		#if (flash9 || cpp || java || php)
-		return map.iterator();
-		#else
 		return [].iterator();
-		#end
 	}
 }
 
