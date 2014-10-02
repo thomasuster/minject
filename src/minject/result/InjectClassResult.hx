@@ -26,7 +26,7 @@ import minject.Injector;
 
 class InjectClassResult extends InjectionResult
 {
-	var responseType:Class<Dynamic>;
+	public var responseType:Class<Dynamic>;
 	
 	public function new(responseType:Class<Dynamic>)
 	{

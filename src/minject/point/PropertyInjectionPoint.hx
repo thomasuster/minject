@@ -30,7 +30,7 @@ class PropertyInjectionPoint implements InjectionPoint
 	var name:String;
 	var type:Class<Dynamic>;
 	var injectionName:String;
-	var requestName:String;
+    public var requestName:String;
 
 	public function new(name:String, type:Class<Dynamic>, ?injectionName:String)
 	{
@@ -47,6 +47,8 @@ class PropertyInjectionPoint implements InjectionPoint
 		if (config == null)
 		{
 			var targetName = Type.getClassName(Type.getClass(target));
+			trace('Injector is missing a rule to handle injection into property "$name" ' +
+				'of object "$targetName". Target dependency: "${Type.getClassName(type)}", named "$injectionName"');
 			throw 'Injector is missing a rule to handle injection into property "$name" ' +
 				'of object "$targetName". Target dependency: "${Type.getClassName(type)}", named "$injectionName"';
 		}

@@ -175,7 +175,7 @@ class ChildInjectorTest
 
         Assert.isTrue(Std.is(childInjector.getInstance(Class1), Class1Extension));
     }
-    
+
     @Test
     public function childInjectorDoesNotHaveMappingWhenDoesNotExistOnParentInjector():Void
     {

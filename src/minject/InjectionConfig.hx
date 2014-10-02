@@ -22,6 +22,7 @@ SOFTWARE.
 
 package minject;
 
+import minject.result.InjectClassResult;
 import minject.result.InjectionResult;
 
 class InjectionConfig
@@ -43,7 +44,6 @@ class InjectionConfig
 		if (this.injector != null) injector = this.injector;
 
 		if (result != null) return result.getResponse(injector);
-		
 		var parentConfig = injector.getAncestorMapping(request, injectionName);
 		if (parentConfig != null) return parentConfig.getResponse(injector);
 

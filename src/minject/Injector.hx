@@ -356,7 +356,7 @@ import minject.result.InjectValueResult;
 
 			parent = parent.parentInjector;
 		}
-		
+
 		return null;
 	}
 
