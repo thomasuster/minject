@@ -481,7 +481,6 @@ class InjecteeSet
 	#if (flash9 || java || php)
 	var map:WeakMap<{}, Bool>;
 	#elseif cpp
-	var map:ObjectMap<{}, Bool>;
 	#end
 
 	public function new()
@@ -489,14 +488,14 @@ class InjecteeSet
 		#if (flash9 || java || php)
 		map = new WeakMap<{}, Bool>();
 		#elseif cpp
-		map = new ObjectMap<{}, Bool>();
 		#end
 	}
 
 	public function add(value:Dynamic)
 	{
-		#if (flash9 || cpp || java || php)
+		#if (flash9 || java || php)
 		map.set(value, true);
+		#elseif cpp
 		#else
 		value.__injected__ = true;
 		#end
@@ -504,8 +503,10 @@ class InjecteeSet
 
 	public function contains(value:Dynamic)
 	{
-		#if (flash9 || cpp || java || php)
+		#if (flash9 || java || php)
 		return map.exists(value);
+		#elseif cpp
+        return false;
 		#else
 		return value.__injected__ == true;
 		#end
@@ -513,8 +514,9 @@ class InjecteeSet
 
 	public function remove(value:Dynamic)
 	{
-		#if (flash9 || cpp || java || php)
+		#if (flash9 || java || php)
 		map.remove(value);
+		#elseif cpp
 		#else
 		Reflect.deleteField(value, "__injected__");
 		#end
@@ -530,7 +532,7 @@ class InjecteeSet
 	**/
 	public function iterator()
 	{
-		#if (flash9 || cpp || java || php)
+		#if (flash9 || java || php)
 		return map.iterator();
 		#else
 		return [].iterator();
