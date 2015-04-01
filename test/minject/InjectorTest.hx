@@ -74,6 +74,12 @@ import minject.support.injectees.RecursiveInjectee;
 	}
 
 	@Test
+	public function testVariableClass():Void {
+		var type:Class<Dynamic> = Class1;
+		injector.mapValue(type, null);
+	}
+
+	@Test
 	public function unbind()
 	{
 		var injectee = new ClassInjectee();
