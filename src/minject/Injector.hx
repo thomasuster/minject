@@ -200,12 +200,12 @@ import minject.result.InjectValueResult;
     {
         var config = injector.getConfig(_requestName);
         #if debug
-//            if (config == null)
-//            {
-//            var targetName = Type.getClassName(Type.getClass(target));
-//            throw 'Injector is missing a rule to handle injection into property "$name" ' +
-//            'of object "$targetName". Target dependency: "${Type.getClassName(type)}", named "$injectionName"';
-//            }
+            if (config == null)
+            {
+                var targetName = Type.getClassName(Type.getClass(target));
+                throw 'Injector is missing a rule to handle injection into property "$_name" ' +
+                'of object "$targetName". Target dependency: "$_requestName"';
+            }
         #end
         Reflect.setProperty(target, _name, config.getResponse(injector));
         return target;
