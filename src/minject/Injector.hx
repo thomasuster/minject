@@ -49,6 +49,9 @@ import minject.result.InjectValueResult;
 
 	var children:Array<Injector>;
 	var injectionConfigs:Map<String, InjectionConfig>;
+    var _requestName:String;
+    var _name:String;
+
     static var noArgs:Array<Dynamic>;
 
 	public function new()
@@ -190,17 +193,35 @@ import minject.result.InjectValueResult;
 	public function injectInto(target:Dynamic):Void
 	{
 		var targetClass = Type.getClass(target);
-		var injectionPoints:Array<InjectionPoint> = getInjectionPoints(targetClass);
-		for (i in 0...injectionPoints.length)
-            injectionPoints[i].applyInjection(target, this);
+		var injectionPoints:Array<PropertyInjectionPoint> = getInjectionPoints(targetClass);
+		for (i in 0...injectionPoints.length) {
+            _requestName = injectionPoints[i].requestName;
+            _name = injectionPoints[i].name;
+            applyInjection(target, this);
+        }
 	}
+
+    public function applyInjection(target:Dynamic, injector:Injector):Dynamic
+    {
+        var config = injector.getConfig(_requestName);
+        #if debug
+//            if (config == null)
+//            {
+//            var targetName = Type.getClassName(Type.getClass(target));
+//            throw 'Injector is missing a rule to handle injection into property "$name" ' +
+//            'of object "$targetName". Target dependency: "${Type.getClassName(type)}", named "$injectionName"';
+//            }
+        #end
+        Reflect.setProperty(target, _name, config.getResponse(injector));
+        return target;
+    }
 
 	/**
 		Constructs an instance of theClass without satifying its dependencies.
 	**/
 	public function construct<T>(theClass:Class<T>):T
 	{
-		var injecteeDescription:Array<InjectionPoint> = getInjectionPoints(theClass);
+		var injecteeDescription:Array<PropertyInjectionPoint> = getInjectionPoints(theClass);
 		return Type.createInstance(theClass, noArgs);
 	}
 
@@ -315,7 +336,7 @@ import minject.result.InjectValueResult;
 		return null;
 	}
 
-	function getInjectionPoints(forClass:Class<Dynamic>):Array<InjectionPoint>
+	function getInjectionPoints(forClass:Class<Dynamic>):Array<PropertyInjectionPoint>
 	{
 		#if debug
         var typeMeta = Meta.getType(forClass);
@@ -324,7 +345,7 @@ import minject.result.InjectValueResult;
 		#end
 
 		var fieldsMeta = getFields(forClass);
-		var injectionPoints:Array<InjectionPoint> = [];
+		var injectionPoints:Array<PropertyInjectionPoint> = [];
 
 		for (field in Reflect.fields(fieldsMeta))
 		{
