@@ -189,21 +189,10 @@ import minject.result.InjectValueResult;
 	**/
 	public function injectInto(target:Dynamic):Void
 	{
-		// get injection points or cache them if this target's class wasn't encountered before
 		var targetClass = Type.getClass(target);
-
-		var injecteeDescription:Array<InjectionPoint> = getInjectionPoints(targetClass);
-
-		if (injecteeDescription == null) return;
-
-		var injectionPoints:Array<Dynamic> = injecteeDescription;
-		var length:Int = injectionPoints.length;
-
-		for (i in 0...length)
-		{
-			var injectionPoint:InjectionPoint = injectionPoints[i];
-			injectionPoint.applyInjection(target, this);
-		}
+		var injectionPoints:Array<InjectionPoint> = getInjectionPoints(targetClass);
+		for (i in 0...injectionPoints.length)
+            injectionPoints[i].applyInjection(target, this);
 	}
 
 	/**
