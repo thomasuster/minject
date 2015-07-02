@@ -7,6 +7,11 @@ class RequestHasher
 		return '${getClassName(forClass)}#${named}';
 	}
 
+    public static function resolveRequestByString(forClass:String, ?named:String=''):String
+    {
+        return '$forClass#${named}';
+    }
+
 	public static function getClassName(forClass:Class<Dynamic>):String
 	{
 		if (forClass == null) return 'Dynamic';

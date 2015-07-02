@@ -21,33 +21,12 @@ SOFTWARE.
 */
 
 package minject.point;
-
-import minject.RequestHasher;
-import minject.Injector;
-
-class PropertyInjectionPoint implements InjectionPoint
+class PropertyInjectionPoint
 {
 	public var name:String;
-    public var type:Class<Dynamic>;
-    public var injectionName:String;
 	public var requestName:String;
 
 	public function new()
 	{
-	}
-
-	public function applyInjection(target:Dynamic, injector:Injector):Dynamic
-	{
-		var config = injector.getConfig(requestName);
-		#if debug
-		if (config == null)
-		{
-			var targetName = Type.getClassName(Type.getClass(target));
-			throw 'Injector is missing a rule to handle injection into property "$name" ' +
-				'of object "$targetName". Target dependency: "${Type.getClassName(type)}", named "$injectionName"';
-		}
-		#end
-		Reflect.setProperty(target, name, config.getResponse(injector));
-		return target;
 	}
 }

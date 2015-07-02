@@ -26,11 +26,6 @@ import minject.RequestHasher;
 import haxe.rtti.Meta;
 import haxe.ds.WeakMap;
 import haxe.ds.ObjectMap;
-import minject.point.ConstructorInjectionPoint;
-import minject.point.InjectionPoint;
-import minject.point.MethodInjectionPoint;
-import minject.point.NoParamsConstructorInjectionPoint;
-import minject.point.PostConstructInjectionPoint;
 import minject.point.PropertyInjectionPoint;
 import minject.result.InjectClassResult;
 import minject.result.InjectOtherRuleResult;
@@ -356,9 +351,7 @@ import minject.result.InjectValueResult;
 
             var point:PropertyInjectionPoint = new PropertyInjectionPoint();
             point.name = field;
-            point.type = Type.resolveClass(typeString);
-            point.injectionName = name;
-            point.requestName = RequestHasher.resolveRequest(point.type, point.injectionName);
+            point.requestName = RequestHasher.resolveRequestByString(typeString, name);
             injectionPoints.push(point);
 		}
     return injectionPoints;

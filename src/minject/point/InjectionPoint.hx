@@ -26,5 +26,4 @@ import minject.Injector;
 
 interface InjectionPoint
 {
-	function applyInjection(target:Dynamic, injector:Injector):Dynamic;
 }
