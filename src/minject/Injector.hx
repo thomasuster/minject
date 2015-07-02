@@ -58,6 +58,10 @@ import minject.result.InjectValueResult;
 		children = [];
 	}
 
+    public function isCached(forClass:Class<Dynamic>):Bool {
+        return injecteeDescriptions.exists(forClass);
+    }
+
 	/**
 		When asked for an instance of the class `whenAskedFor` inject the instance `useValue`.
 
@@ -93,6 +97,7 @@ import minject.result.InjectValueResult;
 	{
 		var config = getMapping(whenAskedFor, named);
 		config.setResult(new InjectClassResult(instantiateClass));
+        injecteeDescriptions.set(instantiateClass, getInjectionPoints(instantiateClass));
 		return config;
 	}
 
@@ -414,7 +419,6 @@ import minject.result.InjectValueResult;
 			ctorInjectionPoint = new NoParamsConstructorInjectionPoint();
 
 		var injecteeDescription = new InjecteeDescription(ctorInjectionPoint, injectionPoints);
-		injecteeDescriptions.set(forClass, injecteeDescription);
 		return injecteeDescription;
 	}
 
