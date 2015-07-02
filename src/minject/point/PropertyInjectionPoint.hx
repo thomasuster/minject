@@ -27,17 +27,13 @@ import minject.Injector;
 
 class PropertyInjectionPoint implements InjectionPoint
 {
-	var name:String;
-	var type:Class<Dynamic>;
-	var injectionName:String;
+	public var name:String;
+    public var type:Class<Dynamic>;
+    public var injectionName:String;
 	public var requestName:String;
 
-	public function new(name:String, type:Class<Dynamic>, ?injectionName:String)
+	public function new()
 	{
-		this.name = name;
-		this.type = type;
-		this.injectionName = injectionName;
-		this.requestName = RequestHasher.resolveRequest(type, injectionName);
 	}
 
 	public function applyInjection(target:Dynamic, injector:Injector):Dynamic

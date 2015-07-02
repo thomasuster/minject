@@ -324,9 +324,7 @@ import minject.result.InjectValueResult;
 		#end
 
 		var fieldsMeta = getFields(forClass);
-
 		var injectionPoints:Array<InjectionPoint> = [];
-		var postConstructMethodPoints:Array<Dynamic> = [];
 
 		for (field in Reflect.fields(fieldsMeta))
 		{
@@ -334,8 +332,12 @@ import minject.result.InjectValueResult;
 			var type = Reflect.field(fieldMeta, "type");
             var name = fieldMeta.inject == null ? null : fieldMeta.inject[0];
             var typeString:String = fieldMeta.type[0];
-            var klass:Class<Dynamic> = Type.resolveClass(typeString);
-            var point:PropertyInjectionPoint = new PropertyInjectionPoint(field, klass, name);
+
+            var point:PropertyInjectionPoint = new PropertyInjectionPoint();
+            point.name = field;
+            point.type = Type.resolveClass(typeString);
+            point.injectionName = name;
+            point.requestName = RequestHasher.resolveRequest(point.type, point.injectionName);
             injectionPoints.push(point);
 		}
     return injectionPoints;
