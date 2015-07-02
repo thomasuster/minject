@@ -54,13 +54,6 @@ class ChildInjectorTest
 		injector = null;
 	}
 
-    @Test
-    public function childrenShouldGetCache():Void {
-        injector.mapClass(Class1,Class1);
-        var childInjector = injector.createChildInjector();
-        Assert.isTrue(childInjector.isCached(Class1));
-    }
-	
 	@Test
 	public function injectorCreatesChildInjector():Void
 	{

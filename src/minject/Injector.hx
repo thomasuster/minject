@@ -49,18 +49,12 @@ import minject.result.InjectValueResult;
 
 	var children:Array<Injector>;
 	var injectionConfigs:Map<String, InjectionConfig>;
-	var injecteeDescriptions:ClassMap<InjecteeDescription>;
 
 	public function new()
 	{
 		injectionConfigs = new Map();
-		injecteeDescriptions = new ClassMap();
 		children = [];
 	}
-
-    public function isCached(forClass:Class<Dynamic>):Bool {
-        return injecteeDescriptions.exists(forClass);
-    }
 
 	/**
 		When asked for an instance of the class `whenAskedFor` inject the instance `useValue`.
@@ -97,7 +91,6 @@ import minject.result.InjectValueResult;
 	{
 		var config = getMapping(whenAskedFor, named);
 		config.setResult(new InjectClassResult(instantiateClass));
-        injecteeDescriptions.set(instantiateClass, getInjectionPoints(instantiateClass));
 		return config;
 	}
 
@@ -199,14 +192,7 @@ import minject.result.InjectValueResult;
 
 		var injecteeDescription:InjecteeDescription = null;
 
-		if (injecteeDescriptions.exists(targetClass))
-		{
-			injecteeDescription = injecteeDescriptions.get(targetClass);
-		}
-		else
-		{
-			injecteeDescription = getInjectionPoints(targetClass);
-		}
+        injecteeDescription = getInjectionPoints(targetClass);
 
 		if (injecteeDescription == null) return;
 
@@ -227,14 +213,7 @@ import minject.result.InjectValueResult;
 	{
 		var injecteeDescription:InjecteeDescription;
 
-		if (injecteeDescriptions.exists(theClass))
-		{
-			injecteeDescription = injecteeDescriptions.get(theClass);
-		}
-		else
-		{
-			injecteeDescription = getInjectionPoints(theClass);
-		}
+        injecteeDescription = getInjectionPoints(theClass);
 
 		var injectionPoint:InjectionPoint = injecteeDescription.ctor;
 		return injectionPoint.applyInjection(theClass, this);
@@ -271,7 +250,6 @@ import minject.result.InjectValueResult;
 	public function unmap(theClass:Class<Dynamic>, ?named:String=""):Void
 	{
 		var mapping = getConfigurationForRequest(theClass, named);
-        injecteeDescriptions.remove(theClass);
 		if (mapping == null)
 		{
 			throw 'Error while removing an injector mapping: No mapping defined for class ' + RequestHasher.getClassName(theClass) + ', named "' + named + '"';
@@ -434,9 +412,6 @@ import minject.result.InjectValueResult;
 		for (key in parentInjector.injectionConfigs.keys())
 			if(!injectionConfigs.exists(key))
 				setConfig(key, parentInjector.injectionConfigs.get(key));
-
-        for (key in parentInjector.injecteeDescriptions.keys())
-            injecteeDescriptions.set(key, parentInjector.injecteeDescriptions.get(key));
 
 		return parentInjector;
 	}
