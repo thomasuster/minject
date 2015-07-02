@@ -58,7 +58,15 @@ class PropertyInjectionPointTest
         injector.mapClass(Class1,Class1);
         Assert.isTrue(injector.isCached(Class1));
     }
-	
+
+
+    @Test
+    public function shouldUnCacheIfUnMapped():Void {
+        injector.mapClass(Class1,Class1);
+        injector.unmap(Class1);
+        Assert.isFalse(injector.isCached(Class1));
+    }
+
 	@Test
 	public function injection_of_single_property_is_applied():Void
 	{

@@ -271,7 +271,7 @@ import minject.result.InjectValueResult;
 	public function unmap(theClass:Class<Dynamic>, ?named:String=""):Void
 	{
 		var mapping = getConfigurationForRequest(theClass, named);
-
+        injecteeDescriptions.remove(theClass);
 		if (mapping == null)
 		{
 			throw 'Error while removing an injector mapping: No mapping defined for class ' + RequestHasher.getClassName(theClass) + ', named "' + named + '"';
@@ -290,7 +290,6 @@ import minject.result.InjectValueResult;
 	public function hasMapping(forClass:Class<Dynamic>, ?named:String = ''):Bool
 	{
 		var mapping = getConfigurationForRequest(forClass, named);
-
 		if (mapping == null)
 		{
 			return false;
@@ -435,6 +434,9 @@ import minject.result.InjectValueResult;
 		for (key in parentInjector.injectionConfigs.keys())
 			if(!injectionConfigs.exists(key))
 				setConfig(key, parentInjector.injectionConfigs.get(key));
+
+        for (key in parentInjector.injecteeDescriptions.keys())
+            injecteeDescriptions.set(key, parentInjector.injecteeDescriptions.get(key));
 
 		return parentInjector;
 	}
