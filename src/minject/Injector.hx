@@ -49,11 +49,13 @@ import minject.result.InjectValueResult;
 
 	var children:Array<Injector>;
 	var injectionConfigs:Map<String, InjectionConfig>;
+    static var noArgs:Array<Dynamic>;
 
 	public function new()
 	{
 		injectionConfigs = new Map();
 		children = [];
+		noArgs = [];
 	}
 
 	/**
@@ -215,8 +217,7 @@ import minject.result.InjectValueResult;
 
         injecteeDescription = getInjectionPoints(theClass);
 
-		var injectionPoint:InjectionPoint = injecteeDescription.ctor;
-		return injectionPoint.applyInjection(theClass, this);
+		return Type.createInstance(theClass, noArgs);
 	}
 
 	/**
@@ -341,40 +342,20 @@ import minject.result.InjectValueResult;
 
 		var fieldsMeta = getFields(forClass);
 
-		var ctorInjectionPoint:InjectionPoint = null;
 		var injectionPoints:Array<InjectionPoint> = [];
 		var postConstructMethodPoints:Array<Dynamic> = [];
 
 		for (field in Reflect.fields(fieldsMeta))
 		{
 			var fieldMeta:Dynamic = Reflect.field(fieldsMeta, field);
-			// fieldMeta.name = field;
-
-			var inject = Reflect.hasField(fieldMeta, "inject");
-			var post = Reflect.hasField(fieldMeta, "post");
 			var type = Reflect.field(fieldMeta, "type");
-			var args = Reflect.field(fieldMeta, "args");
-
-            if (type != null) // property
-            {
-                var name = fieldMeta.inject == null ? null : fieldMeta.inject[0];
-                var typeString:String = fieldMeta.type[0];
-                var klass:Class<Dynamic> = Type.resolveClass(typeString);
-                var point:PropertyInjectionPoint = new PropertyInjectionPoint(field, klass, name);
-                injectionPoints.push(point);
-            }
+            var name = fieldMeta.inject == null ? null : fieldMeta.inject[0];
+            var typeString:String = fieldMeta.type[0];
+            var klass:Class<Dynamic> = Type.resolveClass(typeString);
+            var point:PropertyInjectionPoint = new PropertyInjectionPoint(field, klass, name);
+            injectionPoints.push(point);
 		}
-
-		if (postConstructMethodPoints.length > 0)
-		{
-			postConstructMethodPoints.sort(function(a, b) { return a.order - b.order; });
-			for (point in postConstructMethodPoints) injectionPoints.push(point);
-		}
-
-		if (ctorInjectionPoint == null)
-			ctorInjectionPoint = new NoParamsConstructorInjectionPoint();
-
-		var injecteeDescription = new InjecteeDescription(ctorInjectionPoint, injectionPoints);
+		var injecteeDescription = new InjecteeDescription(injectionPoints);
 		return injecteeDescription;
 	}
 
@@ -483,12 +464,10 @@ class InjecteeSet
 
 class InjecteeDescription
 {
-	public var ctor:InjectionPoint;
 	public var injectionPoints:Array<InjectionPoint>;
 
-	public function new(ctor:InjectionPoint, injectionPoints:Array<InjectionPoint>)
+	public function new(injectionPoints:Array<InjectionPoint>)
 	{
-		this.ctor = ctor;
 		this.injectionPoints = injectionPoints;
 	}
 }

@@ -36,7 +36,6 @@ class ClassInjectee
 		someProperty = false;
 	}
 	
-	@post(1)
 	public function doSomeStuff():Void
 	{
 		someProperty = true;
