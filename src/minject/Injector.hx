@@ -192,13 +192,11 @@ import minject.result.InjectValueResult;
 		// get injection points or cache them if this target's class wasn't encountered before
 		var targetClass = Type.getClass(target);
 
-		var injecteeDescription:InjecteeDescription = null;
-
-        injecteeDescription = getInjectionPoints(targetClass);
+		var injecteeDescription:Array<InjectionPoint> = getInjectionPoints(targetClass);
 
 		if (injecteeDescription == null) return;
 
-		var injectionPoints:Array<Dynamic> = injecteeDescription.injectionPoints;
+		var injectionPoints:Array<Dynamic> = injecteeDescription;
 		var length:Int = injectionPoints.length;
 
 		for (i in 0...length)
@@ -213,10 +211,7 @@ import minject.result.InjectValueResult;
 	**/
 	public function construct<T>(theClass:Class<T>):T
 	{
-		var injecteeDescription:InjecteeDescription;
-
-        injecteeDescription = getInjectionPoints(theClass);
-
+		var injecteeDescription:Array<InjectionPoint> = getInjectionPoints(theClass);
 		return Type.createInstance(theClass, noArgs);
 	}
 
@@ -331,11 +326,10 @@ import minject.result.InjectValueResult;
 		return null;
 	}
 
-	function getInjectionPoints(forClass:Class<Dynamic>):InjecteeDescription
+	function getInjectionPoints(forClass:Class<Dynamic>):Array<InjectionPoint>
 	{
-		var typeMeta = Meta.getType(forClass);
-
 		#if debug
+        var typeMeta = Meta.getType(forClass);
 		if (typeMeta != null && Reflect.hasField(typeMeta, "interface"))
 			throw "Interfaces can't be used as instantiatable classes.";
 		#end
@@ -355,8 +349,7 @@ import minject.result.InjectValueResult;
             var point:PropertyInjectionPoint = new PropertyInjectionPoint(field, klass, name);
             injectionPoints.push(point);
 		}
-		var injecteeDescription = new InjecteeDescription(injectionPoints);
-		return injecteeDescription;
+    return injectionPoints;
 	}
 
 	function getConfigurationForRequest(forClass:Class<Dynamic>, named:String):InjectionConfig
@@ -459,15 +452,5 @@ class InjecteeSet
 		#else
 		return [].iterator();
 		#end
-	}
-}
-
-class InjecteeDescription
-{
-	public var injectionPoints:Array<InjectionPoint>;
-
-	public function new(injectionPoints:Array<InjectionPoint>)
-	{
-		this.injectionPoints = injectionPoints;
 	}
 }
