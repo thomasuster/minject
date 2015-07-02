@@ -40,9 +40,7 @@ import minject.support.injectees.TwoNamedParametersMethodInjectee;
 import minject.support.injectees.MixedParametersMethodInjectee;
 import minject.support.injectees.OneParameterConstructorInjectee;
 import minject.support.injectees.TwoParametersConstructorInjectee;
-import minject.support.injectees.OneNamedParameterConstructorInjectee;
 import minject.support.injectees.TwoNamedParametersConstructorInjectee;
-import minject.support.injectees.MixedParametersConstructorInjectee;
 import minject.support.injectees.NamedArrayInjectee;
 import minject.support.injectees.MultipleNamedSingletonsOfSameClassInjectee;
 import minject.support.injectees.XMLInjectee;
@@ -301,147 +299,6 @@ class InjectorTest
 	}
 	
 	@Test
-	public function performMethodInjectionWithOneParameter():Void
-	{
-		var injectee1 = new OneParameterMethodInjectee();
-		var injectee2 = new OneParameterMethodInjectee();
-
-		injector.mapClass(Class1, Class1);
-		
-		injector.injectInto(injectee1);
-		Assert.isNotNull(injectee1.getDependency());//"Instance of Class should have been injected"
-
-		injector.injectInto(injectee2);
-		Assert.isFalse(injectee1.getDependency() == injectee2.getDependency());//"Injected values should be different"
-	}
-	
-	@Test
-	public function performMethodInjectionWithOneNamedParameter():Void
-	{
-		var injectee1 = new OneNamedParameterMethodInjectee();
-		var injectee2 = new OneNamedParameterMethodInjectee();
-
-		injector.mapClass(Class1, Class1, OneNamedParameterMethodInjectee.NAME);
-		
-		injector.injectInto(injectee1);
-		Assert.isNotNull(injectee1.getDependency());//"Instance of Class should have been injected for named Class1 parameter"
-
-		injector.injectInto(injectee2);
-		Assert.isFalse(injectee1.getDependency() == injectee2.getDependency());//"Injected values should be different"
-	}
-	
-	@Test
-	public function performMethodInjectionWithTwoParameters():Void
-	{
-		var injectee1 = new TwoParametersMethodInjectee();
-		var injectee2 = new TwoParametersMethodInjectee();
-
-		injector.mapClass(Class1, Class1);
-		injector.mapClass(Interface1, Class1);
-
-		injector.injectInto(injectee1);
-		Assert.isNotNull(injectee1.getDependency1());//"Instance of Class should have been injected for unnamed Class1 parameter"
-		Assert.isNotNull(injectee1.getDependency2());//"Instance of Class should have been injected for unnamed Interface parameter"
-
-		injector.injectInto(injectee2);
-		Assert.isFalse(injectee1.getDependency1() == injectee2.getDependency1());//"Injected values should be different"
-		Assert.isFalse(injectee1.getDependency2() == injectee2.getDependency2());//"Injected values for Interface should be different"
-	}
-	
-	@Test
-	public function performMethodInjectionWithTwoNamedParameters():Void
-	{
-		var injectee1 = new TwoNamedParametersMethodInjectee();
-		var injectee2 = new TwoNamedParametersMethodInjectee();
-
-		injector.mapClass(Class1, Class1, TwoNamedParametersMethodInjectee.NAME1);
-		injector.mapClass(Interface1, Class1, TwoNamedParametersMethodInjectee.NAME2);
-
-		injector.injectInto(injectee1);
-		Assert.isNotNull(injectee1.getDependency1());//"Instance of Class should have been injected for named Class1 parameter"
-		Assert.isNotNull(injectee1.getDependency2());//"Instance of Class should have been injected for  for named Interface parameter"
-
-		injector.injectInto(injectee2);
-		Assert.isFalse(injectee1.getDependency1() == injectee2.getDependency1());//"Injected values should be different"
-		Assert.isFalse(injectee1.getDependency2() == injectee2.getDependency2());//"Injected values for Interface should be different"
-	}
-	
-	@Test
-	public function performMethodInjectionWithMixedParameters():Void
-	{
-		var injectee1 = new MixedParametersMethodInjectee();
-		var injectee2 = new MixedParametersMethodInjectee();
-
-		injector.mapClass(Class1, Class1, MixedParametersMethodInjectee.NAME1);
-		injector.mapClass(Class1, Class1);
-		injector.mapClass(Interface1, Class1, MixedParametersMethodInjectee.NAME2);
-		
-		injector.injectInto(injectee1);
-		Assert.isNotNull(injectee1.getDependency1());//"Instance of Class should have been injected for named Class1 parameter"
-		Assert.isNotNull(injectee1.getDependency2());//"Instance of Class should have been injected for unnamed Class1 parameter"
-		Assert.isNotNull(injectee1.getDependency3());//"Instance of Class should have been injected for Interface"
-
-		injector.injectInto(injectee2);
-		Assert.isFalse(injectee1.getDependency1() == injectee2.getDependency1());//"Injected values for named Class1 should be different"
-		Assert.isFalse(injectee1.getDependency2() == injectee2.getDependency2());//"Injected values for unnamed Class1 should be different"
-		Assert.isFalse(injectee1.getDependency3() == injectee2.getDependency3());//"Injected values for named Interface should be different"
-	}
-	
-	@Test
-	public function performConstructorInjectionWithOneParameter():Void
-	{
-		injector.mapClass(Class1, Class1);
-
-		var injectee = injector.instantiate(OneParameterConstructorInjectee);
-		Assert.isNotNull(injectee.getDependency());//"Instance of Class should have been injected for Class1 parameter"
-	}
-	
-	@Test
-	public function performConstructorInjectionWithTwoParameters():Void
-	{
-		injector.mapClass(Class1, Class1);
-		injector.mapValue(String, "stringDependency");
-
-		var injectee = injector.instantiate(TwoParametersConstructorInjectee);
-
-		Assert.isNotNull(injectee.getDependency1());//"Instance of Class should have been injected for named Class1 parameter"
-		Assert.areEqual(injectee.getDependency2(), "stringDependency");//"The String 'stringDependency' should have been injected for String parameter"
-	}
-	
-	@Test
-	public function performConstructorInjectionWithOneNamedParameter():Void
-	{
-		injector.mapClass(Class1, Class1, OneNamedParameterConstructorInjectee.NAME);
-		var injectee = injector.instantiate(OneNamedParameterConstructorInjectee);
-		Assert.isNotNull(injectee.getDependency());//"Instance of Class should have been injected for named Class1 parameter"
-	}
-	
-	@Test
-	public function performConstructorInjectionWithTwoNamedParameter():Void
-	{
-		var stringValue = "stringDependency";
-		injector.mapClass(Class1, Class1, TwoNamedParametersConstructorInjectee.NAME1);
-		injector.mapValue(String, stringValue, TwoNamedParametersConstructorInjectee.NAME2);
-
-		var injectee = injector.instantiate(TwoNamedParametersConstructorInjectee);
-		Assert.isNotNull(injectee.getDependency1());//"Instance of Class should have been injected for named Class1 parameter"
-		Assert.areEqual(injectee.getDependency2(), stringValue);//"The String 'stringDependency' should have been injected for named String parameter"
-	}
-	
-	@Test
-	public function performConstructorInjectionWithMixedParameters():Void
-	{
-		injector.mapClass(Class1, Class1, MixedParametersConstructorInjectee.NAME1);
-		injector.mapClass(Class1, Class1);
-		injector.mapClass(Interface1, Class1, MixedParametersConstructorInjectee.NAME2);
-
-		var injectee = injector.instantiate(MixedParametersConstructorInjectee);
-		Assert.isNotNull(injectee.getDependency1());//"Instance of Class should have been injected for named Class1 parameter"
-		Assert.isNotNull(injectee.getDependency2());//"Instance of Class should have been injected for unnamed Class1 parameter"
-		Assert.isNotNull(injectee.getDependency3());//"Instance of Class should have been injected for Interface"
-	}
-	
-	@Test
 	public function performNamedArrayInjection():Void
 	{
 		var array = ["value1", "value2", "value3"];
@@ -504,27 +361,6 @@ class InjectorTest
 		injector.injectInto(injectee);
 
 		Assert.areEqual(injectee.property, value);//'injected value should be indentical to mapped value'
-	}
-	
-	@Test
-	public function postConstructIsCalled():Void
-	{
-		var injectee = new ClassInjectee();
-		var value = new Class1();
-
-		injector.mapValue(Class1, value);
-		injector.injectInto(injectee);
-		
-		Assert.isTrue(injectee.someProperty);
-	}
-	
-	@Test
-	public function postConstructMethodsCalledAsOrdered():Void
-	{
-		var injectee = new OrderedPostConstructInjectee();
-		injector.injectInto(injectee);
-
-		Assert.isTrue(injectee.loadedAsOrdered);
 	}
 	
 	@Test

@@ -355,35 +355,14 @@ import minject.result.InjectValueResult;
 			var type = Reflect.field(fieldMeta, "type");
 			var args = Reflect.field(fieldMeta, "args");
 
-			if (field == "_") // constructor
-			{
-				if (args.length > 0)
-				{
-					ctorInjectionPoint = new ConstructorInjectionPoint(fieldMeta.args);
-				}
-			}
-			else if (Reflect.hasField(fieldMeta, "args")) // method
-			{
-				if (inject) // injection
-				{
-					var point = new MethodInjectionPoint(field, fieldMeta.args);
-					injectionPoints.push(point);
-				}
-				else if (post) // post construction
-				{
-					var order = fieldMeta.post == null ? 0 : fieldMeta.post[0];
-					var point = new PostConstructInjectionPoint(field, order);
-					postConstructMethodPoints.push(point);
-				}
-			}
-			else if (type != null) // property
-			{
-				var name = fieldMeta.inject == null ? null : fieldMeta.inject[0];
-				var typeString:String = fieldMeta.type[0];
-				var klass:Class<Dynamic> = Type.resolveClass(typeString);
-				var point:PropertyInjectionPoint = new PropertyInjectionPoint(field, klass, name);
-				injectionPoints.push(point);
-			}
+            if (type != null) // property
+            {
+                var name = fieldMeta.inject == null ? null : fieldMeta.inject[0];
+                var typeString:String = fieldMeta.type[0];
+                var klass:Class<Dynamic> = Type.resolveClass(typeString);
+                var point:PropertyInjectionPoint = new PropertyInjectionPoint(field, klass, name);
+                injectionPoints.push(point);
+            }
 		}
 
 		if (postConstructMethodPoints.length > 0)

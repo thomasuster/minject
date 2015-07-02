@@ -111,16 +111,4 @@ class ChildInjectorTest
         
         Assert.isType(injectee.property, Class1);
     }
-	
-	@Test
-	public function injectorCanCreateChildInjectorDuringInjection():Void
-	{
-		injector.mapRule(Injector, new InjectorCopyRule());
-		injector.mapClass(InjectorInjectee, InjectorInjectee);
-		var injectee = injector.getInstance(InjectorInjectee);
-
-		Assert.isNotNull(injectee.injector);
-		Assert.isTrue(injectee.injector.parentInjector == injector);
-		Assert.isTrue(injectee.nestedInjectee.nestedInjectee.injector.parentInjector.parentInjector.parentInjector == injector);
-	}
 }
