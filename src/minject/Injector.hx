@@ -43,11 +43,6 @@ import minject.result.InjectValueResult;
 #if !macro @:build(minject.Macro.addMetadata()) #end class Injector
 {
 	/**
-		A set of instances that have already had their dependencies satisfied by the injector.
-	**/
-	public var attendedToInjectees(default, null):InjecteeSet;
-
-	/**
 		The parent of this injector.
 	**/
 	public var parentInjector(default, set):Injector;
@@ -60,7 +55,6 @@ import minject.result.InjectValueResult;
 	{
 		injectionConfigs = new Map();
 		injecteeDescriptions = new ClassMap();
-		attendedToInjectees = new InjecteeSet();
 		children = [];
 	}
 
@@ -195,13 +189,6 @@ import minject.result.InjectValueResult;
 	**/
 	public function injectInto(target:Dynamic):Void
 	{
-		if (attendedToInjectees.contains(target))
-		{
-			return;
-		}
-
-		attendedToInjectees.add(target);
-
 		// get injection points or cache them if this target's class wasn't encountered before
 		var targetClass = Type.getClass(target);
 
@@ -439,17 +426,11 @@ import minject.result.InjectValueResult;
 
 	function set_parentInjector(value:Injector):Injector
 	{
-		// restore own map of worked injectees if parent injector is removed
-		if (parentInjector != null && value == null) attendedToInjectees = new InjecteeSet();
-
 		parentInjector = value;
 		parentInjector.children.push(this);
 		for (key in parentInjector.injectionConfigs.keys())
 			if(!injectionConfigs.exists(key))
 				setConfig(key, parentInjector.injectionConfigs.get(key));
-
-		// use parent's map of worked injectees
-		if (parentInjector != null) attendedToInjectees = parentInjector.attendedToInjectees;
 
 		return parentInjector;
 	}
