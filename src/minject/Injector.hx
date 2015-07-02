@@ -342,10 +342,9 @@ import minject.result.InjectValueResult;
 		var fieldsMeta = getFields(forClass);
 		var injectionPoints:Array<PropertyInjectionPoint> = [];
 
-		for (field in Reflect.fields(fieldsMeta))
+		for (field in fieldsMeta.keys())
 		{
-			var fieldMeta:Dynamic = Reflect.field(fieldsMeta, field);
-			var type = Reflect.field(fieldMeta, "type");
+			var fieldMeta:Dynamic = fieldsMeta.get(field);
             var name = fieldMeta.inject == null ? null : fieldMeta.inject[0];
             var typeString:String = fieldMeta.type[0];
 
@@ -354,7 +353,7 @@ import minject.result.InjectValueResult;
             point.requestName = RequestHasher.resolveRequestByString(typeString, name);
             injectionPoints.push(point);
 		}
-    return injectionPoints;
+        return injectionPoints;
 	}
 
 	function getConfigurationForRequest(forClass:Class<Dynamic>, named:String):InjectionConfig
@@ -374,14 +373,17 @@ import minject.result.InjectValueResult;
 		return parentInjector;
 	}
 
-	function getFields(type:Class<Dynamic>)
+	function getFields(type:Class<Dynamic>):Map<String,Dynamic>
 	{
-		var meta = {};
+		var meta:Map<String,Dynamic> = new Map<String,Dynamic>();
 		while (type != null)
 		{
 			var typeMeta = haxe.rtti.Meta.getFields(type);
-			for (field in Reflect.fields(typeMeta))
-				Reflect.setField(meta, field, Reflect.field(typeMeta, field));
+            var fields:Array<String> = Reflect.fields(typeMeta);
+            for (i in 0...fields.length) {
+                var field = fields[i];
+                meta.set(field, Reflect.field(typeMeta, field));
+            }
 			type = Type.getSuperClass(type);
 		}
 		return meta;
