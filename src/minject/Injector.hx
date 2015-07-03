@@ -44,8 +44,6 @@ import minject.result.InjectValueResult;
 
 	var children:Array<Injector>;
 	var injectionConfigs:Map<String, InjectionConfig>;
-    var _requestName:String;
-    var _name:String;
 
     static var noArgs:Array<Dynamic>;
 
@@ -190,24 +188,22 @@ import minject.result.InjectValueResult;
 		var targetClass = Type.getClass(target);
 		var injectionPoints:Array<PropertyInjectionPoint> = getInjectionPoints(targetClass);
 		for (i in 0...injectionPoints.length) {
-            _requestName = injectionPoints[i].requestName;
-            _name = injectionPoints[i].name;
-            applyInjection(target, this);
+            applyInjection(target, this, injectionPoints[i]);
         }
 	}
 
-    public function applyInjection(target:Dynamic, injector:Injector):Dynamic
+    public function applyInjection(target:Dynamic, injector:Injector, point:PropertyInjectionPoint):Dynamic
     {
-        var config = injector.getConfig(_requestName);
+        var config = injector.getConfig(point.requestName);
         #if debug
             if (config == null)
             {
                 var targetName = Type.getClassName(Type.getClass(target));
-                throw 'Injector is missing a rule to handle injection into property "$_name" ' +
-                'of object "$targetName". Target dependency: "$_requestName"';
+                throw 'Injector is missing a rule to handle injection into property "${point.name}" ' +
+                'of object "$targetName". Target dependency: "${point.requestName}"';
             }
         #end
-        Reflect.setProperty(target, _name, config.getResponse(injector));
+        Reflect.setProperty(target, point.name, config.getResponse(injector));
         return target;
     }
 
@@ -344,14 +340,16 @@ import minject.result.InjectValueResult;
 
 		for (field in fieldsMeta.keys())
 		{
-			var fieldMeta:Dynamic = fieldsMeta.get(field);
-            var name = fieldMeta.inject == null ? null : fieldMeta.inject[0];
-            var typeString:String = fieldMeta.type[0];
-
-            var point:PropertyInjectionPoint = new PropertyInjectionPoint();
-            point.name = field;
-            point.requestName = RequestHasher.resolveRequestByString(typeString, name);
-            injectionPoints.push(point);
+            var fieldMeta:Dynamic = fieldsMeta.get(field);
+            var type = Reflect.field(fieldMeta, "type");
+            if(type!= null) {
+                var name = fieldMeta.inject == null ? null : fieldMeta.inject[0];
+                var typeString:String = fieldMeta.type[0];
+                var point:PropertyInjectionPoint = new PropertyInjectionPoint();
+                point.name = field;
+                point.requestName = RequestHasher.resolveRequestByString(typeString, name);
+                injectionPoints.push(point);
+            }
 		}
         return injectionPoints;
 	}
