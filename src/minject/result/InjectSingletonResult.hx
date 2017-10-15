@@ -24,18 +24,18 @@ package minject.result;
 
 import minject.Injector;
 
-class InjectSingletonResult extends InjectionResult
+class InjectSingletonResult<T> extends InjectionResult
 {
-	var responseType:Class<Dynamic>;
-	var response:Dynamic;
+	var responseType:Class<T>;
+	var response:T;
 	
-	public function new(responseType:Class<Dynamic>)
+	public function new(responseType:Class<T>)
 	{
 		super();
 		this.responseType = responseType;
 	}
 	
-	override public function getResponse(injector:Injector):Dynamic
+	override public function getResponse(injector:Injector):T
 	{
 		if (response == null)
 		{
@@ -46,7 +46,7 @@ class InjectSingletonResult extends InjectionResult
 		return response;
 	}
 	
-	function createResponse(injector:Injector):Dynamic
+	function createResponse(injector:Injector):T
 	{
 		return injector.construct(responseType);
 	}

@@ -121,7 +121,7 @@ import minject.result.InjectValueResult;
 
 		@returns A reference to the rule for this injection. To be used with `mapRule`
 	**/
-	public function mapSingletonOf(whenAskedFor:Class<Dynamic>, useSingletonOf:Class<Dynamic>, ?named:String=""):Dynamic
+	public function mapSingletonOf<T>(whenAskedFor:Class<T>, useSingletonOf:Class<T>, ?named:String=""):InjectionConfig
 	{
 		var config = getMapping(whenAskedFor, named);
 		config.setResult(new InjectSingletonResult(useSingletonOf));
@@ -148,7 +148,7 @@ import minject.result.InjectValueResult;
 		return useRule;
 	}
 
-	public function getMapping(forClass:Class<Dynamic>, ?named:String=""):InjectionConfig
+	public function getMapping<T>(forClass:Class<T>, ?named:String=""):InjectionConfig
 	{
 		var requestName:String = RequestHasher.resolveRequest(forClass, named);
 		var config = new InjectionConfig(forClass, named);
